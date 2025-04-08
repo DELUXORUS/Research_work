@@ -30,6 +30,7 @@ void WeightGraph::initializeWeightGraph(std::vector<Vertex> numberVertex) {
 }
 
 void WeightGraph::fillMatrixWeight(int vertex1, int vertex2, int weight) {
+    _weightMatrixAdjacency.resize(_numberVertex.size(), std::vector<int>(_numberVertex.size()));
     _weightMatrixAdjacency[vertex1 - 1][vertex2 - 1] = weight;
     _weightMatrixAdjacency[vertex2 - 1][vertex1 - 1] = weight;
 }

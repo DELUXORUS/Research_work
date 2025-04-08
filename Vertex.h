@@ -1,5 +1,5 @@
-#ifndef VERTEX_H
-#define VERTEX_H
+#ifndef VERTEX_H_
+#define VERTEX_H_
 
 #include <iostream>
 

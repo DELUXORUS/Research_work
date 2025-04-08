@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -lX11
-SOURCES = main.cpp
+SOURCES = $(wildcard *.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
 all: graph
