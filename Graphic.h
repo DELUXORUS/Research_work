@@ -11,7 +11,6 @@
 #include <X11/Xutil.h>
 
 #include "WeightGraph.h"
-#include "AlgorithmPrima.h"
 
 #define RADIUS_VERTEX 50
 
@@ -24,7 +23,7 @@ class Graphic {
         void drawVertex(Vertex currentVertex);
         void drawEdge(Vertex vertex1, Vertex vertex2);
         void drawWeight(Vertex vertex1, Vertex vertex2, int weight);
-        bool checkCollisionVertex(Vertex& currentVertex, Graph& graph);
+        bool checkCollisionVertex(Vertex& currentVertex, WeightGraph& weightGraph);
         void rendering(std::map<int, std::vector<Vertex>>& listAdjacency, std::vector<Vertex>& numberVertex);
         void windowCleaning() { XClearWindow(_display, _window); }
         bool checkCollisionVertex(Vertex& currentVertex, std::vector<Vertex>& numberVertex);

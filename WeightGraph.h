@@ -1,10 +1,10 @@
-#ifndef WEIGHTED_GRAPH_H
-#define WEIGHTED_GRAPH_H
+#ifndef WEIGHT_GRAPH_H_
+#define WEIGHT_GRAPH_H_
 
 #include <random>
 #include <iomanip>
+#include <map>
 
-#include "Graph.h"
 #include "Vertex.h"
 #include "VertexWeight.h"
 

@@ -13,6 +13,10 @@
 #include "SalemansTask.h"
 
 
+using std::cin;
+using std::cout;
+using std::endl;
+
 int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph);
 void dispatch(Graphic& graphic, WeightGraph& weightGraph);
 int countVertex = 1;
@@ -75,7 +79,7 @@ void dispatch(Graphic& graphic, WeightGraph& weightGraph) {
                 Vertex currentVertex(0, 0, event.xbutton.x, event.xbutton.y);
                 
                 if(event.xbutton.button == Button1) {       
-                    if(graphic.checkCollisionVertex(currentVertex, weightGraph) == true) {
+                    if(graphic.checkCollisionVertex(currentVertex, weightGraph.getVectorVertex()) == true) {
                         if(selectVertex.size() == 0)
                             selectVertex.push_back(currentVertex);
 
@@ -95,10 +99,12 @@ void dispatch(Graphic& graphic, WeightGraph& weightGraph) {
                     } 
                     
                     else {
-                        currentVertex.setNumber(countVertex);
-                        weightGraph.getVectorVertex().push_back(currentVertex); 
-                        graphic.drawVertex(currentVertex);
-                        countVertex++;
+                        if (selectVertex.size() == 0) {
+                            currentVertex.setNumber(countVertex);
+                            weightGraph.getVectorVertex().push_back(currentVertex); 
+                            graphic.drawVertex(currentVertex);
+                            countVertex++;
+                        }
                     }
                 }
                 break;
