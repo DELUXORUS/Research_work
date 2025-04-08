@@ -10,7 +10,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-#include "Graph.h"
 #include "WeightGraph.h"
 #include "AlgorithmPrima.h"
 
