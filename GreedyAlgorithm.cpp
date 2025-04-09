@@ -1,7 +1,7 @@
-#include "SalemansTask.h"
+#include "GreedyAlgorithm.h"
 
 
-void SalemansTask::search() {
+void GreedyAlgorithm::search() {
     std::vector<int> path1;
     std::vector<int> path2;
 
@@ -47,7 +47,7 @@ void SalemansTask::search() {
 
 
 
-bool SalemansTask::_recursiveSearch(std::vector<int>& path1, std::vector<int>& path2) {
+bool GreedyAlgorithm::_recursiveSearch(std::vector<int>& path1, std::vector<int>& path2) {
 
     int currentVertex1 = path1.back() - 1;
     auto minEdge1 = _searchMinimalEdgeForVertex(_weightGraph.getWeightMatrixAdjacency()[currentVertex1], 
@@ -72,11 +72,11 @@ bool SalemansTask::_recursiveSearch(std::vector<int>& path1, std::vector<int>& p
     return (_checkAdjacency(path1.back() - 1, path2.back() - 1));
 }
 
-bool SalemansTask::_checkAdjacency(int vertex1, int vertex2) {
+bool GreedyAlgorithm::_checkAdjacency(int vertex1, int vertex2) {
     return (_weightGraph.getWeightMatrixAdjacency()[vertex1][vertex2]);
 }
 
-std::pair<int, int> SalemansTask::_searchMinimalEdgeForVertex(const std::vector<int>& adjacencyVertex,
+std::pair<int, int> GreedyAlgorithm::_searchMinimalEdgeForVertex(const std::vector<int>& adjacencyVertex,
                                                               const std::vector<int>& path1, 
                                                               const std::vector<int>& path2) 
 {
@@ -101,12 +101,12 @@ std::pair<int, int> SalemansTask::_searchMinimalEdgeForVertex(const std::vector<
     return numberWeight;
 }
 
-void SalemansTask::_mergePaths(std::vector<int>& path1, std::vector<int>& path2) {
+void GreedyAlgorithm::_mergePaths(std::vector<int>& path1, std::vector<int>& path2) {
     _hamiltonianCycle.insert(_hamiltonianCycle.begin(), path1.begin(), path1.end());
     _hamiltonianCycle.insert(_hamiltonianCycle.end(), path2.rbegin(), path2.rend());
 }
 
-void SalemansTask::_output() {
+void GreedyAlgorithm::_output() {
     cout << endl << "Salemans Task" << endl;
     
     for (auto it = _hamiltonianCycle.begin(); it != _hamiltonianCycle.end();) {

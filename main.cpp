@@ -10,7 +10,7 @@
 #include "Vertex.h"
 #include "WeightGraph.h"
 #include "BaseWeightAlgorithm.h"
-#include "SalemansTask.h"
+#include "GreedyAlgorithm.h"
 
 
 using std::cin;
@@ -47,7 +47,7 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph) {
         }
 
         case XK_9: {
-            salemansTask = new SalemansTask(weightGraph);
+            salemansTask = new GreedyAlgorithm(weightGraph);
             salemansTask->search();
             break;
         }

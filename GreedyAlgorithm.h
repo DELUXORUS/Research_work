@@ -1,5 +1,5 @@
-#ifndef SALEMANS_TASK_H_
-#define SALEMANS_TASK_H_
+#ifndef GREEDY_ALGORITHM_H_
+#define GREEDY_ALGORITHM_H_
 
 #include <vector>
 #include <algorithm>
@@ -10,10 +10,10 @@
 #include "VertexWeight.h"
 
 
-class SalemansTask : public WeightAlgorithm {
+class GreedyAlgorithm : public WeightAlgorithm {
 public:
-    SalemansTask() {}
-    SalemansTask(WeightGraph weightGraph) : WeightAlgorithm(weightGraph) {}
+    GreedyAlgorithm() {}
+    GreedyAlgorithm(WeightGraph weightGraph) : WeightAlgorithm(weightGraph) {}
     void search();
 
 private:
