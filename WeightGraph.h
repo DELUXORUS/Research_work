@@ -11,7 +11,6 @@
 
 class WeightGraph {
     public: 
-        void initializeWeightGraph(std::vector<Vertex> numberVertex);
         WeightGraph() {}
         void fillMatrixWeight(int vertex1, int vertex2, int weight);
         void fillListWeight();
@@ -21,7 +20,8 @@ class WeightGraph {
         int getNumberVertex() { return _numberVertex.size(); }
         void outputMatrixWeightGraph();
         void outputListWeightGraph();
-        bool checkEdge(int numberVertex1, int numberVertex2);
+        int checkEdge(int numberVertex1, int numberVertex2);
+        void testGraph();
         void reset();
     private:
         std::vector<Vertex> _numberVertex;

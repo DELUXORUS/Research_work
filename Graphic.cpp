@@ -7,10 +7,29 @@ void Graphic::initializeGraphic() {
     if(_loadFont() == false)
         throw std::runtime_error("Failed to load the font!");
 
-    _loadFont();
+    // _loadFont();
     _setColor();
     _createWindow();
     _createGC();
+    // _outputInstruction();
+}
+
+void Graphic::outputInstruction() {
+    XWindowAttributes attributes;
+    XGetWindowAttributes(_display, _window, &attributes);
+
+    std::vector<std::string> instructions = {"Press 'q' for exit.",
+                                            "Press 'a' to ouput matrix adjacency and list adjacency for current graph.",
+                                            "Press 'e' to build the test graph.",
+                                            "Press '9' to solve the traveling Salesman problem in a given graph.",
+                                            "Press 'Backspace' to erase the graph."};
+    int x = 10;
+    int y = 20;
+
+    for (size_t i = 0; i < instructions.size(); ++i) {
+        XDrawString(_display, _window, _gc[0], x, y, instructions[i].c_str(), instructions[i].size());
+        y += 15;
+    }  
 }
 
 bool Graphic::_loadFont() {
@@ -33,9 +52,9 @@ void Graphic::_setColor() {
 }
 
 void Graphic::_createGC() {
-    _gc[0] = XCreateGC(_display, _window, 0, NULL);
-    _gc[1] = XCreateGC(_display, _window, 0, NULL);
-    _gc[2] = XCreateGC(_display, _window, 0, NULL);
+    _gc[0] = XCreateGC(_display, _window, 0, NULL);     // Графический контекст текста
+    _gc[1] = XCreateGC(_display, _window, 0, NULL);     // Графический контекст вершин
+    _gc[2] = XCreateGC(_display, _window, 0, NULL);     // Графический контекст ребер и стрелок
 
 
     XSetFont(_display, _gc[0], _fontInfo->fid);
@@ -62,6 +81,35 @@ void Graphic::_createWindow() {
                             depth, InputOutput, CopyFromParent, mask, &attributes);
     XMapWindow(_display, _window);
 }
+
+void Graphic::drawArrow(Vertex initialVertex, Vertex finalVertex) {
+    // Вычисляем угол линии
+    int x1 = initialVertex.getX();
+    int y1 = initialVertex.getY();
+    int x2 = finalVertex.getX();
+    int y2 = finalVertex.getY();
+
+    double angle = atan2(y2 - y1, x2 - x1);
+    
+    // Положение стрелки
+    int arrow_x = x1 + (x2 - x1) / 2;
+    int arrow_y = y1 + (y2 - y1) / 2;
+
+    // Длина стрелки
+    int arrow_length = 20;
+    int arrow_width = 10;
+
+    // Концы стрелки
+    int x1_arrow = arrow_x - arrow_length * cos(angle - M_PI / 6);
+    int y1_arrow = arrow_y - arrow_length * sin(angle - M_PI / 6);
+    int x2_arrow = arrow_x - arrow_length * cos(angle + M_PI / 6);
+    int y2_arrow = arrow_y - arrow_length * sin(angle + M_PI / 6);
+
+    // Рисуем стрелку
+    XDrawLine(_display, _window, _gc[2], arrow_x, arrow_y, x1_arrow, y1_arrow);
+    XDrawLine(_display, _window, _gc[2], arrow_x, arrow_y, x2_arrow, y2_arrow);
+}
+
 
 void Graphic::drawWeight(Vertex vertex1, Vertex vertex2, int weight) {
     std::string weightStr = std::to_string(weight);
@@ -90,20 +138,6 @@ void Graphic::drawEdge(Vertex vertex1, Vertex vertex2) {
     drawVertex(vertex2);
 }
 
-bool Graphic::checkCollisionVertex(Vertex& currentVertex, WeightGraph& weightGraph) {    
-    for (int i = 0; i < weightGraph.getVectorVertex().size(); i++) {
-        int x = weightGraph.getVectorVertex()[i].getX() - currentVertex.getX();
-        int y = weightGraph.getVectorVertex()[i].getY() - currentVertex.getY();
-        
-        if (x * x + y * y <= RADIUS_VERTEX * RADIUS_VERTEX) {
-            currentVertex = weightGraph.getVectorVertex()[i];
-            return true; 
-        }
-    }
-    
-    return false;
-}
-
 bool Graphic::checkCollisionVertex(Vertex& currentVertex, std::vector<Vertex>& numberVertex) {    
     for(int i = 0; i < numberVertex.size(); i++) {
         int x = numberVertex[i].getX() - currentVertex.getX();
@@ -120,6 +154,12 @@ bool Graphic::checkCollisionVertex(Vertex& currentVertex, std::vector<Vertex>& n
 
 void Graphic::rendering(std::map<int, std::vector<Vertex>>& listAdjacency, std::vector<Vertex>& numberVertex) {
     XClearWindow(_display, _window);
+    
+    // if (listAdjacency.size() == 0) {
+    //     cout << "List adjacency is empty!" << endl;
+    //     return;
+    // }
+
     std::set<int> renderedVertex;
     
     for(auto& vertex : listAdjacency) {

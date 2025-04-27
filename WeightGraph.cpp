@@ -1,36 +1,66 @@
 #include "WeightGraph.h"
 
 
+void WeightGraph::testGraph() {
+    if(_weightMatrixAdjacency.size() == 0) {
+        int inf = std::numeric_limits<int>::max();
+        _weightMatrixAdjacency = {{inf, 1, 2, inf, 5},
+                                  {1, inf, inf, 8, 2},
+                                  {2, inf, inf, 4, 3},
+                                  {inf, 8, 4, inf, 5},
+                                  {5, 2, 3, 5, inf}};
+        
+            Vertex vertex1 = { 1, 0, 200, 200};
+            Vertex vertex2 = { 2, 0, 200, 400};
+            Vertex vertex3 = { 3, 0, 400, 200};
+            Vertex vertex4 = { 4, 0, 400, 400};
+            Vertex vertex5 = { 5, 0, 300, 300};
+            _numberVertex.push_back(vertex1);
+            _numberVertex.push_back(vertex2);
+            _numberVertex.push_back(vertex3);
+            _numberVertex.push_back(vertex4);
+            _numberVertex.push_back(vertex5);
+
+        fillListWeight();
+    }
+    else {
+        cout << endl << "The graph is alredy set!" << endl;
+    }
+}
+
 void WeightGraph::reset() {
     _numberVertex.clear();
     _weightMatrixAdjacency.clear();
     _weightListAdjacency.clear();
 }
 
-bool WeightGraph::checkEdge(int numberVertex1, int numberVertex2) {
+int WeightGraph::checkEdge(int numberVertex1, int numberVertex2) {
     
     numberVertex1--;
     numberVertex2--;
 
     if(numberVertex1 == numberVertex2)
-        return true;
+        return 2;
     
     if(numberVertex1 >= _weightMatrixAdjacency.size() || numberVertex2 >= _weightMatrixAdjacency.size())
-    return false;
+        return 0;
     
-    if(_weightMatrixAdjacency[numberVertex1][numberVertex2] != 0)
-        return true;
+    if(_weightMatrixAdjacency[numberVertex1][numberVertex2] != std::numeric_limits<int>::max())
+        return 1;
 
-    return false;
-}
-
-void WeightGraph::initializeWeightGraph(std::vector<Vertex> numberVertex) {
-    _numberVertex = numberVertex;
-    _weightMatrixAdjacency.resize(_numberVertex.size(), std::vector<int>(_numberVertex.size(), 0));
+    return 0;
 }
 
 void WeightGraph::fillMatrixWeight(int vertex1, int vertex2, int weight) {
-    _weightMatrixAdjacency.resize(_numberVertex.size(), std::vector<int>(_numberVertex.size()));
+    // _weightMatrixAdjacency.resize(_numberVertex.size(), 
+    //                               std::vector<int>(_numberVertex.size(), std::numeric_limits<int>::max()));
+
+    _weightMatrixAdjacency.resize(_numberVertex.size());
+
+    for (size_t i = 0; i < _weightMatrixAdjacency.size(); ++i) {
+        _weightMatrixAdjacency[i].resize(_numberVertex.size(), std::numeric_limits<int>::max());
+    }
+    
     _weightMatrixAdjacency[vertex1 - 1][vertex2 - 1] = weight;
     _weightMatrixAdjacency[vertex2 - 1][vertex1 - 1] = weight;
 }
@@ -38,9 +68,18 @@ void WeightGraph::fillMatrixWeight(int vertex1, int vertex2, int weight) {
 void WeightGraph::outputMatrixWeightGraph() {
     cout << endl << "Matrix Adjacency Weight Graph" << endl;
 
-    for(int i = 0; i < _weightMatrixAdjacency.size(); i++) {
-        for(int j = 0; j < _weightMatrixAdjacency.size(); j++) {
-                cout << _weightMatrixAdjacency[i][j] << "   ";
+    for (size_t i = 0; i < _weightMatrixAdjacency.size(); i++) {
+        for (size_t j = 0; j < _weightMatrixAdjacency.size(); j++) {
+                cout << std::setw(5);
+
+                if (_weightMatrixAdjacency[i][j] == std::numeric_limits<int>::max()) {
+                    cout << "inf";
+                }
+                else {
+                    cout << _weightMatrixAdjacency[i][j]; 
+                }
+
+                cout << "   ";
         }
         
         cout << endl;
@@ -53,7 +92,7 @@ void WeightGraph::fillListWeight() {
 
     for(int i = 0; i < _weightMatrixAdjacency.size() - 1; i++) {
         for(int j = i + 1; j < _weightMatrixAdjacency.size(); j++) {
-            if(_weightMatrixAdjacency[i][j] != 0) {
+            if(_weightMatrixAdjacency[i][j] != std::numeric_limits<int>::max()) {
                 _weightListAdjacency[i + 1].push_back({j + 1, _weightMatrixAdjacency[i][j], _numberVertex[j].getX(), _numberVertex[j].getY()});
                 _weightListAdjacency[j + 1].push_back({i + 1, _weightMatrixAdjacency[i][j], _numberVertex[i].getX(), _numberVertex[i].getY()});
             }
