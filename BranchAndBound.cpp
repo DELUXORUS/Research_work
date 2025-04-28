@@ -32,13 +32,13 @@ void BranchAndBound::search() {
     std::vector<int> minElements = _searchMinInRowOrCol(ROW, weightMatrixAdjacency);
     int currentLowBound = accumulate(minElements.begin(), minElements.end(), 0);
     _matrixReductionRowOrCol(ROW, minElements, weightMatrixAdjacency);
-    // cout << endl << "Matrix after reduction row" << endl;
-    // _outputMatrix(weightMatrixAdjacency);
+    cout << endl << "Matrix after reduction row" << endl;
+    _outputMatrix(weightMatrixAdjacency);
 
     minElements = _searchMinInRowOrCol(COL, weightMatrixAdjacency);
     currentLowBound += accumulate(minElements.begin(), minElements.end(), 0);
-    // _matrixReductionRowOrCol(COL, minElements, weightMatrixAdjacency);
-    // cout << endl << "Matrix after reduction col" << endl;
+    _matrixReductionRowOrCol(COL, minElements, weightMatrixAdjacency);
+    cout << endl << "Matrix after reduction col" << endl;
     _outputMatrix(weightMatrixAdjacency);
 
     // ZeroValuation zeroOnDelete;
@@ -158,10 +158,10 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
     _matrixReductionRowOrCol(ROW, minElements, weightMatrixAdjacency);
 
     
-    // cout << endl << "Matrix col reduction" << endl;
+    cout << endl << "Matrix col reduction" << endl;
     minElements = _searchMinInRowOrCol(COL, weightMatrixAdjacency);
-    // _outputVector(minElements);
-    // cout << endl;
+    _outputVector(minElements);
+    cout << endl;
     int conversionConst2 = _accumulateGrades(minElements);
     _matrixReductionRowOrCol(COL, minElements, weightMatrixAdjacency);
     // cout << endl << "Matrix after reduction at row and col";
@@ -214,6 +214,8 @@ int BranchAndBound::_accumulateGrades(std::vector<int>& minElements) {
             amount = std::numeric_limits<int>::max();
             return amount;
         }
+
+        amount += minElements[i];
     }
 
     return amount;

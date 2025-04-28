@@ -49,8 +49,8 @@ class BranchAndBound : public WeightAlgorithm {
                                           std::vector<int>& rowIndexDecreasingMatrix, 
                                           std::vector<int>& colIndexDecreasingMatrix);
         unsigned _lowerBound;
-        std::vector<std::pair<int, int>> _hamiltonianCycle;
         std::map<int, std::vector<Vertex>> _weightListAdjacency;
+        
 };
 
 #endif

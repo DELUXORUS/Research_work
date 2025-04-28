@@ -19,9 +19,10 @@ class OrientedGraph {
         std::vector<std::vector<int>>& getMatrixAdjacency() { return _matrixAdjacency; }
         std::vector<Vertex>& getVectorVertex() { return _numberVertex; }
         int getNumberVertex() { return _numberVertex.size(); }
-        void testGraph();
         void outputMatrixAdjacency();
         void outputListAdjacency();
+        void testGraph();
+        void reset();
     private:
         std::vector<Vertex> _numberVertex;
         std::vector<std::vector<int>> _matrixAdjacency;

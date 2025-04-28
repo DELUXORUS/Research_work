@@ -35,24 +35,24 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
         }
 
         case XK_i: {
-            
-        }
-
-        case XK_a: {
-            if(weightGraph.getWeightMatrixAdjacency().size() == 0)
-                cout << endl << "The graph is not set!" << endl;
-
-            else {
-                weightGraph.outputMatrixWeightGraph();
-                weightGraph.outputListWeightGraph();
-            }
-
+            graphic.showInstruction();
             break;
         }
 
-        case XK_d: {
+        case XK_o: {
+            graphic.hideInstruction();
+            break;
+        }
+
+        case XK_a: {
             if(orientedGraph.getMatrixAdjacency().size() == 0) {
-                cout << endl << "The graph is not set!" << endl;
+                if (weightGraph.getWeightMatrixAdjacency().size() == 0) {
+                    cout << endl << "Neither a weighted nor an oriented graph is defined!" << endl;
+                    break;
+                }
+
+                weightGraph.outputMatrixWeightGraph();
+                weightGraph.outputListWeightGraph();
             }
 
             else {
@@ -74,7 +74,6 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
                 cout << endl << "The graph is alredy set!" << endl;
             }
 
-            // graphic.outputInstruction();
             break;
         }
 
@@ -88,62 +87,61 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
                 cout << endl << "The oriented graph is alredy set!" << endl;
             }
                                 
-            // graphic.outputInstruction();
             break;
         }
 
         case XK_9: {
-            if(weightGraph.getWeightMatrixAdjacency().size() == 0) {
-                cout << endl << "The graph is not set!" << endl;
-            }
+            branchAndBound = new BranchAndBound();
 
-            else {
-                branchAndBound = new BranchAndBound();
-                // branchAndBound->initialize(orientedGraph.getListAdjacency(), orientedGraph.getMatrixAdjacency(), orientedGraph.getVectorVertex());
-
+            if(orientedGraph.getMatrixAdjacency().size() == 0) {
+                if (weightGraph.getWeightMatrixAdjacency().size() == 0) {
+                    cout << endl << "Neither a weighted nor an oriented graph is defined!" << endl;
+                    break;
+                }
+                
                 branchAndBound->initialize(weightGraph.getWeightListAdjacency(), weightGraph.getWeightMatrixAdjacency(), weightGraph.getVectorVertex());
                 branchAndBound->search();
-    
+
                 BranchAndBound* derivedBranchAndBound = static_cast<BranchAndBound*>(branchAndBound);
-    
+
                 if(derivedBranchAndBound != nullptr) {
                     if (derivedBranchAndBound->getWeightListAdjacency().size() == weightGraph.getNumberVertex()) {
-                        graphic.rendering(derivedBranchAndBound->getWeightListAdjacency(), weightGraph.getVectorVertex());
+                        graphic.rendering(derivedBranchAndBound->getWeightListAdjacency(), 
+                                          weightGraph.getVectorVertex());
                     }
                 }
             }
-            
-            // graphic.outputInstruction();
+
+            else {
+                    branchAndBound->initialize(orientedGraph.getListAdjacency(), orientedGraph.getMatrixAdjacency(), orientedGraph.getVectorVertex());
+                    branchAndBound->search();
+        
+                    BranchAndBound* derivedBranchAndBound = static_cast<BranchAndBound*>(branchAndBound);
+        
+                    if(derivedBranchAndBound != nullptr) {
+                        if (derivedBranchAndBound->getWeightListAdjacency().size() == orientedGraph.getNumberVertex()) {
+                            graphic.rendering(derivedBranchAndBound->getWeightListAdjacency(), 
+                                              orientedGraph.getVectorVertex());
+                        }
+                    }
+            }
+
             break;
         }
 
-        case XK_0: {
-            if(orientedGraph.getMatrixAdjacency().size() == 0) {
-                cout << endl << "The oriented graph is not set!" << endl;
-            }
-
-            else {
-                branchAndBound = new BranchAndBound();
-                branchAndBound->initialize(orientedGraph.getListAdjacency(), orientedGraph.getMatrixAdjacency(), orientedGraph.getVectorVertex());
-                branchAndBound->search();
-    
-                BranchAndBound* derivedBranchAndBound = static_cast<BranchAndBound*>(branchAndBound);
-    
-                if(derivedBranchAndBound != nullptr) {
-                    if (derivedBranchAndBound->getWeightListAdjacency().size() == orientedGraph.getNumberVertex()) {
-                        graphic.rendering(derivedBranchAndBound->getWeightListAdjacency(), orientedGraph.getVectorVertex());
-                    }
-                }
+        case XK_p: {
+            if (weightGraph.getWeightListAdjacency().size() != 0) {
+                graphic.rendering(weightGraph.getWeightListAdjacency(), 
+                                  weightGraph.getVectorVertex());
             }
             
-            // graphic.outputInstruction();
             break;
         }
 
         case XK_BackSpace: {
             graphic.windowCleaning();
-            // graphic.outputInstruction();
             weightGraph.reset();
+            orientedGraph.reset();
             countVertex = 1;
             selectVertex.clear();
             break;
@@ -162,12 +160,12 @@ void dispatch(Graphic& graphic, WeightGraph& weightGraph, OrientedGraph& oriente
 
     while(flagDone == 0) {
         XNextEvent(graphic.getDisplay(), &event);
+
         
         switch(event.type) {
             case Expose: {
                 graphic.windowCleaning();
                 graphic.rendering(weightGraph.getWeightListAdjacency(), weightGraph.getVectorVertex());
-                // graphic.outputInstruction();
                 break;
             }
 
@@ -240,7 +238,7 @@ int main(int argc, char **argv) {
     WeightGraph weightGraph;
     OrientedGraph orientedGraph;
     Graphic graphic;
-    graphic.initializeGraphic();
+    graphic.initialize();
     dispatch(graphic, weightGraph, orientedGraph);
 }
 

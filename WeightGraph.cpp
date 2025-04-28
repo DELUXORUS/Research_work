@@ -52,9 +52,6 @@ int WeightGraph::checkEdge(int numberVertex1, int numberVertex2) {
 }
 
 void WeightGraph::fillMatrixWeight(int vertex1, int vertex2, int weight) {
-    // _weightMatrixAdjacency.resize(_numberVertex.size(), 
-    //                               std::vector<int>(_numberVertex.size(), std::numeric_limits<int>::max()));
-
     _weightMatrixAdjacency.resize(_numberVertex.size());
 
     for (size_t i = 0; i < _weightMatrixAdjacency.size(); ++i) {

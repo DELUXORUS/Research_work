@@ -1,35 +1,68 @@
 #include "Graphic.h"
 
 
-void Graphic::initializeGraphic() {
+void Graphic::initialize() {
     _display = XOpenDisplay(nullptr);
-    
-    if(_loadFont() == false)
-        throw std::runtime_error("Failed to load the font!");
 
-    // _loadFont();
+    if (_display == nullptr) {
+        throw std::runtime_error("Failed to open display!");
+    }
+    
+    if(_loadFont() == false) {
+        throw std::runtime_error("Failed to load the font!");
+    }
+
     _setColor();
     _createWindow();
     _createGC();
-    // _outputInstruction();
+
+    _createWindowInstruction();
 }
 
-void Graphic::outputInstruction() {
-    XWindowAttributes attributes;
-    XGetWindowAttributes(_display, _window, &attributes);
+void Graphic::_createWindowInstruction() {
+    XSetWindowAttributes attributes;
+    attributes.override_redirect = False;
+    attributes.event_mask = KeyPressMask;
+    attributes.background_pixel = _color[2].pixel; 
+    XWindowAttributes attributesParent;
+    XGetWindowAttributes(_display, _window, &attributesParent);
 
+    unsigned long mask = CWOverrideRedirect | CWEventMask | CWBackPixel;
+    int depth = DefaultDepth(_display, DefaultScreen(_display));
+
+    int width = 450;
+    int height = 100;
+    int x0 = attributesParent.width - width;
+    int y0 = attributesParent.height - height;
+
+    _windowInstruction = XCreateWindow(_display, _window, x0, y0, width, height, 1, 
+                                      depth, InputOutput, CopyFromParent, mask, &attributes);
+}
+
+void Graphic::_outputInstruction() {
     std::vector<std::string> instructions = {"Press 'q' for exit.",
-                                            "Press 'a' to ouput matrix adjacency and list adjacency for current graph.",
-                                            "Press 'e' to build the test graph.",
+                                            "Press 'a' to ouput matrix adjacency and list adjacency for current graph."
+                                            "Press 'r' to build the test oriented graph.",
+                                            "Press 'e' to build the test weighted graph.",
+                                            "Press 'p' to restore the graph after finding the Hamiltonian cycle.",
                                             "Press '9' to solve the traveling Salesman problem in a given graph.",
                                             "Press 'Backspace' to erase the graph."};
     int x = 10;
     int y = 20;
 
     for (size_t i = 0; i < instructions.size(); ++i) {
-        XDrawString(_display, _window, _gc[0], x, y, instructions[i].c_str(), instructions[i].size());
+        XDrawString(_display, _windowInstruction, _gc[0], x, y, instructions[i].c_str(), instructions[i].size());
         y += 15;
     }  
+}
+
+void Graphic::showInstruction() {
+    XMapWindow(_display, _windowInstruction);
+    _outputInstruction();
+}
+
+void Graphic::hideInstruction() {
+    XUnmapWindow(_display, _windowInstruction);
 }
 
 bool Graphic::_loadFont() {
@@ -45,6 +78,7 @@ bool Graphic::_loadFont() {
 void Graphic::_setColor() {
     Colormap colormap = DefaultColormap(_display, DefaultScreen(_display));
     XColor exact;
+    _color.resize(3);
 
     XAllocNamedColor(_display, colormap, "#FFFFFF", &_color[0], &exact); // Цвет шрифта
     XAllocNamedColor(_display, colormap, "#4B0082", &_color[1], &exact); // Цвет вершины и ребра
@@ -52,6 +86,8 @@ void Graphic::_setColor() {
 }
 
 void Graphic::_createGC() {
+    _gc.resize(3);
+
     _gc[0] = XCreateGC(_display, _window, 0, NULL);     // Графический контекст текста
     _gc[1] = XCreateGC(_display, _window, 0, NULL);     // Графический контекст вершин
     _gc[2] = XCreateGC(_display, _window, 0, NULL);     // Графический контекст ребер и стрелок
@@ -79,11 +115,16 @@ void Graphic::_createWindow() {
     _rootWindow = DefaultRootWindow(_display);
     _window = XCreateWindow(_display, _rootWindow, 50, 50, 640, 480, 1, 
                             depth, InputOutput, CopyFromParent, mask, &attributes);
+
+    if (_window == 0) {
+        std::cerr << "Failed to create a window" << std::endl;
+        return;
+    }
+                        
     XMapWindow(_display, _window);
 }
 
 void Graphic::drawArrow(Vertex initialVertex, Vertex finalVertex) {
-    // Вычисляем угол линии
     int x1 = initialVertex.getX();
     int y1 = initialVertex.getY();
     int x2 = finalVertex.getX();
@@ -91,21 +132,17 @@ void Graphic::drawArrow(Vertex initialVertex, Vertex finalVertex) {
 
     double angle = atan2(y2 - y1, x2 - x1);
     
-    // Положение стрелки
     int arrow_x = x1 + (x2 - x1) / 2;
     int arrow_y = y1 + (y2 - y1) / 2;
 
-    // Длина стрелки
     int arrow_length = 20;
     int arrow_width = 10;
 
-    // Концы стрелки
     int x1_arrow = arrow_x - arrow_length * cos(angle - M_PI / 6);
     int y1_arrow = arrow_y - arrow_length * sin(angle - M_PI / 6);
     int x2_arrow = arrow_x - arrow_length * cos(angle + M_PI / 6);
     int y2_arrow = arrow_y - arrow_length * sin(angle + M_PI / 6);
 
-    // Рисуем стрелку
     XDrawLine(_display, _window, _gc[2], arrow_x, arrow_y, x1_arrow, y1_arrow);
     XDrawLine(_display, _window, _gc[2], arrow_x, arrow_y, x2_arrow, y2_arrow);
 }
@@ -154,12 +191,6 @@ bool Graphic::checkCollisionVertex(Vertex& currentVertex, std::vector<Vertex>& n
 
 void Graphic::rendering(std::map<int, std::vector<Vertex>>& listAdjacency, std::vector<Vertex>& numberVertex) {
     XClearWindow(_display, _window);
-    
-    // if (listAdjacency.size() == 0) {
-    //     cout << "List adjacency is empty!" << endl;
-    //     return;
-    // }
-
     std::set<int> renderedVertex;
     
     for(auto& vertex : listAdjacency) {
@@ -176,7 +207,7 @@ void Graphic::rendering(std::map<int, std::vector<Vertex>>& listAdjacency, std::
             
             drawEdge(currentVertex, adjacencyVertex);
 
-            if(adjacencyVertex.getWeight() != 0) 
+            if(adjacencyVertex.getWeight() != std::numeric_limits<int>::max()) 
                 drawWeight(currentVertex, adjacencyVertex, adjacencyVertex.getWeight());
         }
     }

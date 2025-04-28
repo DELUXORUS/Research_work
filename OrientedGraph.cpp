@@ -1,5 +1,6 @@
 #include "OrientedGraph.h"
 
+
 void OrientedGraph::testGraph() {
     if(_matrixAdjacency.size() == 0) {
         int inf = std::numeric_limits<int>::max();
@@ -43,10 +44,13 @@ void OrientedGraph::testGraph() {
     }
 }
 
-void OrientedGraph::fillMatrixAdjacency(int initialVertex, int finalVertex, int weight) { 
-    // _matrixAdjacency.resize(_numberVertex.size(), 
-    //                         std::vector<int>(_numberVertex.size(), std::numeric_limits<int>::max()));
+void OrientedGraph::reset() {
+    _numberVertex.clear();
+    _matrixAdjacency.clear();
+    _listAdjacency.clear();
+}
 
+void OrientedGraph::fillMatrixAdjacency(int initialVertex, int finalVertex, int weight) { 
     _matrixAdjacency.resize(_numberVertex.size());
 
     for (size_t i = 0; i < _matrixAdjacency.size(); ++i) {
