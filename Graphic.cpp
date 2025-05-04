@@ -147,15 +147,14 @@ void Graphic::drawArrow(Vertex initialVertex, Vertex finalVertex) {
     XDrawLine(_display, _window, _gc[2], arrow_x, arrow_y, x2_arrow, y2_arrow);
 }
 
-// void Graphic::drawWeight(Vertex vertex1, Vertex vertex2, int weight) {
-//     std::string weightStr = std::to_string(weight);
-//     int distX, distY;
-//     int distX = abs(vertex1.getX() - vertex2.getX()) / 2;
-//     int distY = abs(vertex1.getX() - vertex2.getX()) / 2;
-//     XDrawString(_display, _window, _gc[0], distX, distY, weightStr.c_str(), weightStr.size());
-// }
-
 void Graphic::drawWeight(Vertex vertex1, Vertex vertex2, int weight) {
+    std::string weightStr = std::to_string(weight);
+    int distX = (vertex1.getX() + vertex2.getX()) / 2;
+    int distY = (vertex1.getY() + vertex2.getY()) / 2;
+    XDrawString(_display, _window, _gc[0], distX, distY, weightStr.c_str(), weightStr.size());
+}
+
+void Graphic::drawWeightForOriented(Vertex vertex1, Vertex vertex2, int weight) {
     std::string weightStr = std::to_string(weight);
 
     int x1 = vertex1.getX();
@@ -243,21 +242,6 @@ void Graphic::rendering(std::map<int, std::vector<Vertex>>& listAdjacency, std::
             }
             
             drawEdge(currentVertex, adjacencyVertex);
-
-            // if (adjacencyVertex.getWeight() != std::numeric_limits<int>::max()) {
-            //     if (_checkDrawArrow(listAdjacency, adjacencyVertex.getNumber(), 
-            //         currentVertex.getNumber()) == false) 
-            //     {
-            //         drawArrow(currentVertex, adjacencyVertex);
-            //     }
-
-            //     if (_checkWeight(listAdjacency, adjacencyVertex.getNumber(), 
-            //                      currentVertex.getNumber()))
-            //     drawWeightForOriented(currentVertex, adjacencyVertex, adjacencyVertex.getWeight());
-            //     else {
-            //         drawWeight(currentVertex, adjacencyVertex, adjacencyVertex.getWeight());
-            //     }
-            // }
 
             if (_checkDrawArrow(listAdjacency, adjacencyVertex.getNumber(), 
                                 currentVertex) == false) 

@@ -25,7 +25,7 @@ class Graphic {
         void drawArrow(Vertex initialVertex, Vertex finalVertex);
         void drawVertex(Vertex currentVertex);
         void drawEdge(Vertex vertex1, Vertex vertex2);
-        // void drawWeightForOriented(Vertex vertex1, Vertex vertex2, int weight);
+        void drawWeightForOriented(Vertex vertex1, Vertex vertex2, int weight);
         void drawWeight(Vertex vertex1, Vertex vertex2, int weight);
         void rendering(std::map<int, std::vector<Vertex>>& listAdjacency, 
                        std::vector<Vertex>& numberVertex);
