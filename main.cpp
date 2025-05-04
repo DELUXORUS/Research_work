@@ -20,10 +20,11 @@ using std::endl;
 
 static int countVertex = 1;
 static std::vector<Vertex> selectVertex;
+static std::map<int, std::vector<Vertex>> currentGraph;
+static std::vector<Vertex> vertex;
 
 int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, OrientedGraph& orientedGraph) {
 	KeySym symbol;
-    // WeightAlgorithm *greedyAlgorithm;
     WeightAlgorithm *branchAndBound;
 
 	XLookupString((XKeyEvent*)event, NULL, 0, &symbol, NULL);
@@ -66,6 +67,11 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
         case XK_e: {
             if(weightGraph.getWeightMatrixAdjacency().size() == 0) {
                 weightGraph.testGraph();
+                currentGraph.clear();
+                copy(weightGraph.getWeightListAdjacency().begin(), 
+                     weightGraph.getWeightListAdjacency().end(), 
+                     inserter(currentGraph, currentGraph.end()));
+                vertex = weightGraph.getVectorVertex();
                 graphic.rendering(weightGraph.getWeightListAdjacency(), 
                                   weightGraph.getVectorVertex());
             }
@@ -80,6 +86,11 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
         case XK_r: {
             if(orientedGraph.getMatrixAdjacency().size() == 0) {
                 orientedGraph.testGraph();
+                currentGraph.clear();
+                copy(orientedGraph.getListAdjacency().begin(), 
+                     orientedGraph.getListAdjacency().end(), 
+                     inserter(currentGraph, currentGraph.end()));
+                vertex = orientedGraph.getVectorVertex();
                 graphic.rendering(orientedGraph.getListAdjacency(), 
                                   orientedGraph.getVectorVertex());
             }
@@ -98,14 +109,24 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
                     cout << endl << "Neither a weighted nor an oriented graph is defined!" << endl;
                     break;
                 }
+                else if (weightGraph.isFullGraph() == 0) {
+                    cout << endl << "The given graph is not full!" << endl;
+                    break;
+                }
                 
-                branchAndBound->initialize(weightGraph.getWeightListAdjacency(), weightGraph.getWeightMatrixAdjacency(), weightGraph.getVectorVertex());
+                branchAndBound->initialize(weightGraph.getWeightListAdjacency(), 
+                                           weightGraph.getWeightMatrixAdjacency(), 
+                                           weightGraph.getVectorVertex());
                 branchAndBound->search();
 
                 BranchAndBound* derivedBranchAndBound = static_cast<BranchAndBound*>(branchAndBound);
 
                 if(derivedBranchAndBound != nullptr) {
                     if (derivedBranchAndBound->getWeightListAdjacency().size() == weightGraph.getNumberVertex()) {
+                        currentGraph.clear();
+                        copy(derivedBranchAndBound->getWeightListAdjacency().begin(), 
+                            derivedBranchAndBound->getWeightListAdjacency().end(), 
+                            inserter(currentGraph, currentGraph.end()));
                         graphic.rendering(derivedBranchAndBound->getWeightListAdjacency(), 
                                           weightGraph.getVectorVertex());
                     }
@@ -113,13 +134,24 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
             }
 
             else {
-                    branchAndBound->initialize(orientedGraph.getListAdjacency(), orientedGraph.getMatrixAdjacency(), orientedGraph.getVectorVertex());
+                    if (orientedGraph.isStronglyConnected() == 0) {
+                        cout << endl << "The given graph is not strongly connected!" << endl;
+                        break;
+                    }
+                    
+                    branchAndBound->initialize(orientedGraph.getListAdjacency(), 
+                                               orientedGraph.getMatrixAdjacency(), 
+                                               orientedGraph.getVectorVertex());
                     branchAndBound->search();
         
                     BranchAndBound* derivedBranchAndBound = static_cast<BranchAndBound*>(branchAndBound);
         
                     if(derivedBranchAndBound != nullptr) {
                         if (derivedBranchAndBound->getWeightListAdjacency().size() == orientedGraph.getNumberVertex()) {
+                            currentGraph.clear();
+                            copy(derivedBranchAndBound->getWeightListAdjacency().begin(), 
+                                derivedBranchAndBound->getWeightListAdjacency().end(), 
+                                inserter(currentGraph, currentGraph.end()));
                             graphic.rendering(derivedBranchAndBound->getWeightListAdjacency(), 
                                               orientedGraph.getVectorVertex());
                         }
@@ -130,9 +162,27 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
         }
 
         case XK_p: {
-            if (weightGraph.getWeightListAdjacency().size() != 0) {
+            if(orientedGraph.getMatrixAdjacency().size() == 0) {
+                if (weightGraph.getWeightMatrixAdjacency().size() == 0) {
+                    cout << endl << "Neither a weighted nor an oriented graph is defined!" << endl;
+                    break;
+                }
+
+                currentGraph.clear();
+                copy(weightGraph.getWeightListAdjacency().begin(), 
+                    weightGraph.getWeightListAdjacency().end(), 
+                    inserter(currentGraph, currentGraph.end()));
                 graphic.rendering(weightGraph.getWeightListAdjacency(), 
-                                  weightGraph.getVectorVertex());
+                                  vertex);
+            }
+
+            else {
+                currentGraph.clear();
+                copy(orientedGraph.getListAdjacency().begin(), 
+                    orientedGraph.getListAdjacency().end(), 
+                    inserter(currentGraph, currentGraph.end()));
+                graphic.rendering(orientedGraph.getListAdjacency(), 
+                                  vertex);
             }
             
             break;
@@ -140,10 +190,13 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
 
         case XK_BackSpace: {
             graphic.windowCleaning();
+            graphic.outputLegend();
             weightGraph.reset();
             orientedGraph.reset();
-            countVertex = 1;
+            currentGraph.clear();
+            vertex.clear();
             selectVertex.clear();
+            countVertex = 1;
             break;
         }
 
@@ -155,75 +208,100 @@ int keyAction(XEvent* event, Graphic& graphic, WeightGraph& weightGraph, Oriente
 }
 
 void dispatch(Graphic& graphic, WeightGraph& weightGraph, OrientedGraph& orientedGraph) {
+    cout << "Press \"i\" for show instruction and \"o\" for hide" << endl;
     XEvent event;
     int flagDone = 0;
 
     while(flagDone == 0) {
         XNextEvent(graphic.getDisplay(), &event);
 
-        
         switch(event.type) {
             case Expose: {
                 graphic.windowCleaning();
-                graphic.rendering(weightGraph.getWeightListAdjacency(), weightGraph.getVectorVertex());
+
+                graphic.rendering(currentGraph, vertex);
                 break;
             }
 
             case ButtonPress: {
-                Vertex currentVertex(0, 0, event.xbutton.x, event.xbutton.y);
-                
-                if(event.xbutton.button == Button1) {       
-                    if(graphic.checkCollisionVertex(currentVertex, weightGraph.getVectorVertex()) == true) {
-                        if(selectVertex.size() == 0)
-                            selectVertex.push_back(currentVertex);
-
-                        else {
-                            switch (weightGraph.checkEdge(selectVertex[0].getNumber(), currentVertex.getNumber())) {
-                                case 1: {
-                                    Vertex initialVertex = selectVertex[0];
-                                    Vertex finalVertex = currentVertex;
-                                    int weight = weightGraph.getWeightMatrixAdjacency()[initialVertex.getNumber() - 1][finalVertex.getNumber() - 1];
-                                    graphic.drawArrow(initialVertex, finalVertex);
-                                    graphic.drawWeight(initialVertex, finalVertex, weight);
-                                    orientedGraph.getVectorVertex() = weightGraph.getVectorVertex();
-                                    orientedGraph.fillMatrixAdjacency(initialVertex.getNumber(), finalVertex.getNumber(), weight);
-                                    orientedGraph.fillListAdjacency();
-                                    selectVertex.clear();
-                                    break;
-                                }
-
-                                case 0: {
-                                    selectVertex.push_back(currentVertex);
-                                    graphic.drawEdge(selectVertex[0], selectVertex[1]);
-                                    cout << endl << "Enter weight for edge " << selectVertex[0].getNumber() << " - " << currentVertex.getNumber() << ":" << endl;
-                                    int weight;
-                                    cin >> weight;
-                                    graphic.drawWeight(selectVertex[0], currentVertex, weight);
-                                    weightGraph.fillMatrixWeight(selectVertex[0].getNumber(), currentVertex.getNumber(), weight);
-                                    weightGraph.fillListWeight();
-                                    selectVertex.clear();
-                                    break;
-                                }
-
-                                default: {
-                                    selectVertex.clear();
-                                    break;
-                                }
-
-                            }
-                        }
-                    } 
+                if (currentGraph.size() == 0) {
+                    Vertex currentVertex(0, 0, event.xbutton.x, event.xbutton.y);
                     
-                    else {
-                        if (selectVertex.size() == 0) {
-                            currentVertex.setNumber(countVertex);
-                            weightGraph.getVectorVertex().push_back(currentVertex);
-                            // orientedGraph.getVectorVertex().push_back(currentVertex);
-                            graphic.drawVertex(currentVertex);
-                            countVertex++;
+                    if(event.xbutton.button == Button1) {       
+                        if(graphic.checkCollisionVertex(currentVertex, weightGraph.getVectorVertex()) == true) {
+                            if(selectVertex.size() == 0)
+                                selectVertex.push_back(currentVertex);
+    
+                            else {
+                                selectVertex.push_back(currentVertex);
+
+                                switch (weightGraph.checkEdge(selectVertex[0].getNumber(), selectVertex[1].getNumber())) {
+                                    case 1: {
+                                        Vertex initialVertex = selectVertex[0];
+                                        Vertex finalVertex = selectVertex[1];
+                                        int numberVertex1 = initialVertex.getNumber();
+                                        int numberVertex2 = finalVertex.getNumber();
+                                        int weight;
+
+
+                                        if (orientedGraph.checkEdge(selectVertex[1].getNumber(), selectVertex[0].getNumber()) == true) {
+                                            if (orientedGraph.checkEdge(selectVertex[0].getNumber(), selectVertex[1].getNumber()) == false) {
+                                                cout << endl << "Enter weight for edge " << selectVertex[0].getNumber() << " - " << currentVertex.getNumber() << ":" << endl;
+                                                cin >> weight;
+                                                graphic.drawWeight(initialVertex, finalVertex, weight);
+                                                graphic.drawArrow(initialVertex, finalVertex);
+                                            }
+                                        }
+                                        else {
+                                            weight = weightGraph.getWeightMatrixAdjacency()[--numberVertex1][--numberVertex2];
+                                            graphic.drawWeight(initialVertex, finalVertex, weight);
+                                            graphic.drawArrow(initialVertex, finalVertex);
+                                        }
+                                        
+                                        orientedGraph.getVectorVertex() = weightGraph.getVectorVertex();
+                                        orientedGraph.fillMatrixAdjacency(initialVertex.getNumber(), finalVertex.getNumber(), weight);
+                                        orientedGraph.fillListAdjacency();
+                                        selectVertex.clear();
+                                        break;
+                                    }
+    
+                                    case 0: {
+                                        graphic.drawEdge(selectVertex[0], selectVertex[1]);
+                                        cout << endl << "Enter weight for edge " << selectVertex[0].getNumber() << " - " << currentVertex.getNumber() << ":" << endl;
+                                        int weight;
+                                        cin >> weight;
+                                        graphic.drawWeight(selectVertex[0], selectVertex[1], weight);
+                                        weightGraph.fillMatrixWeight(selectVertex[0].getNumber(), currentVertex.getNumber(), weight);
+                                        weightGraph.fillListWeight();
+                                        selectVertex.clear();
+                                        break;
+                                    }
+    
+                                    default: {
+                                        selectVertex.clear();
+                                        break;
+                                    }
+    
+                                }
+                            }
+                        } 
+                        
+                        else {
+                            if (selectVertex.size() == 0) {
+                                currentVertex.setNumber(countVertex);
+                                weightGraph.getVectorVertex().push_back(currentVertex);
+                                vertex.push_back(currentVertex);
+                                // orientedGraph.getVectorVertex().push_back(currentVertex);
+                                graphic.drawVertex(currentVertex);
+                                countVertex++;
+                            }
                         }
                     }
                 }
+                else {
+                    cout << "It's a test graph, you can't change it!" << endl;
+                }
+
                 break;
             }
 

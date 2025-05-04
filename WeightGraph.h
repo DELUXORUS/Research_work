@@ -21,6 +21,7 @@ class WeightGraph {
         void outputMatrixWeightGraph();
         void outputListWeightGraph();
         int checkEdge(int numberVertex1, int numberVertex2);
+        bool isFullGraph();
         void testGraph();
         void reset();
     private:

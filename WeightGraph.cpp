@@ -51,6 +51,16 @@ int WeightGraph::checkEdge(int numberVertex1, int numberVertex2) {
     return 0;
 }
 
+bool WeightGraph::isFullGraph() {
+    for (size_t i = 1; i < _weightListAdjacency.size(); ++i) {
+        if (_weightListAdjacency[i].size() != _numberVertex.size() - 1) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
 void WeightGraph::fillMatrixWeight(int vertex1, int vertex2, int weight) {
     _weightMatrixAdjacency.resize(_numberVertex.size());
 

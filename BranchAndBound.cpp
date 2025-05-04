@@ -49,7 +49,8 @@ void BranchAndBound::search() {
 
     std::map<int, std::vector<Vertex>> weightListAdjacency;
     _recursivelyBrandAndBound(weightMatrixAdjacency, currentLowBound, weightListAdjacency, rowIndexDecreasingMatrix, colIndexDecreasingMatrix);
-    copy(weightListAdjacency.begin(), weightListAdjacency.end(), inserter(_weightListAdjacency, _weightListAdjacency.end()));
+    copy(weightListAdjacency.begin(), weightListAdjacency.end(), 
+         inserter(_weightListAdjacency, _weightListAdjacency.end()));
 
     if (_lowerBound != std::numeric_limits<unsigned>::max()) {
         cout << endl << endl << "Hamiltonian cycle of smallest length is found!" << endl;
@@ -222,18 +223,40 @@ int BranchAndBound::_accumulateGrades(std::vector<int>& minElements) {
 }
 
 void BranchAndBound::_addInListAdjacency(std::map<int, std::vector<Vertex>>& weightListAdjacency, int numberVertex1, int numberVertex2){
-    // Vertex vertex1 = _weightGraph.getVectorVertex()[numberVertex1 - 1];
-    // Vertex vertex2 = _weightGraph.getVectorVertex()[numberVertex2 - 1];
     Vertex vertex1 = _numberVertexForCurrentGraph[numberVertex1 - 1];
     Vertex vertex2 = _numberVertexForCurrentGraph[numberVertex2 - 1];
+    int weightForward = _matrixAdjacencyForCurrentGraph[numberVertex1 - 1][numberVertex2 - 1];
+    int weightBackward = _matrixAdjacencyForCurrentGraph[numberVertex2 - 1][numberVertex1 - 1];
+
+    if (weightForward == weightBackward) {
+        vertex2.setWeight(weightForward);
+        weightListAdjacency[numberVertex1].push_back(vertex2);
+        vertex1.setWeight(weightBackward);
+        weightListAdjacency[numberVertex2].push_back(vertex1);
+    }
+    else {
+        if (weightForward != std::numeric_limits<int>::max()) {
+            vertex2.setWeight(weightForward);
+            weightListAdjacency[numberVertex1].push_back(vertex2);
+        }
+        else {
+            vertex1.setWeight(weightBackward);
+            weightListAdjacency[numberVertex2].push_back(vertex1);
+        }
+    }
+
+    // Vertex vertex1 = _weightGraph.getVectorVertex()[numberVertex1 - 1];
+    // Vertex vertex2 = _weightGraph.getVectorVertex()[numberVertex2 - 1];
+    // Vertex vertex1 = _numberVertexForCurrentGraph[numberVertex1 - 1];
+    // Vertex vertex2 = _numberVertexForCurrentGraph[numberVertex2 - 1];
 
     // vertex1.setWeight(_weightGraph.getWeightMatrixAdjacency()[numberVertex1 - 1][numberVertex2 - 1]);
-    vertex1.setWeight(_matrixAdjacencyForCurrentGraph[numberVertex1 - 1][numberVertex2 - 1]);
+    // vertex1.setWeight(_matrixAdjacencyForCurrentGraph[numberVertex1 - 1][numberVertex2 - 1]);
 
-    vertex2.setWeight(vertex1.getWeight());
+    // vertex2.setWeight(vertex1.getWeight());
 
-    weightListAdjacency[numberVertex1].push_back(vertex2);
-    weightListAdjacency[numberVertex2].push_back(vertex1);
+    // weightListAdjacency[numberVertex1].push_back(vertex2);
+    // weightListAdjacency[numberVertex2].push_back(vertex1);
 }
 
 // void BranchAndBound::_sortEdges() {

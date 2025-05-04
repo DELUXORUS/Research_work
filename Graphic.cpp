@@ -147,11 +147,48 @@ void Graphic::drawArrow(Vertex initialVertex, Vertex finalVertex) {
     XDrawLine(_display, _window, _gc[2], arrow_x, arrow_y, x2_arrow, y2_arrow);
 }
 
+// void Graphic::drawWeight(Vertex vertex1, Vertex vertex2, int weight) {
+//     std::string weightStr = std::to_string(weight);
+//     int distX, distY;
+//     int distX = abs(vertex1.getX() - vertex2.getX()) / 2;
+//     int distY = abs(vertex1.getX() - vertex2.getX()) / 2;
+//     XDrawString(_display, _window, _gc[0], distX, distY, weightStr.c_str(), weightStr.size());
+// }
 
 void Graphic::drawWeight(Vertex vertex1, Vertex vertex2, int weight) {
     std::string weightStr = std::to_string(weight);
-    int distX = (vertex1.getX() + vertex2.getX()) / 2;
-    int distY = (vertex1.getY() + vertex2.getY()) / 2;
+
+    int x1 = vertex1.getX();
+    int y1 = vertex1.getY();
+    int x2 = vertex2.getX();
+    int y2 = vertex2.getY();
+
+    // Вычисляем среднюю точку между вершинами
+    int midX = (x1 + x2) / 2;
+    int midY = (y1 + y2) / 2;
+
+    // Направление от точки 1 к точке 2
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+
+    // Смещение на 1/4 длины вектора
+    int displacementX = dx / 4;
+    int displacementY = dy / 4;
+
+    // Итоговые координаты: немного ближе к vertex1
+    int distX = x1 + displacementX;
+    int distY = y1 + displacementY;
+
+    // Если линия горизонтальна — поднимаем текст чуть выше/ниже, чтобы не сливался
+    if (dy == 0) {
+        distY -= 10; // чуть выше
+    }
+    // Если линия вертикальна — сдвигаем текст немного вправо/влево
+    else if (dx == 0) {
+        distX += 10; // чуть правее
+    }
+
+    // Рисуем текст
     XDrawString(_display, _window, _gc[0], distX, distY, weightStr.c_str(), weightStr.size());
 }
 
@@ -193,13 +230,13 @@ void Graphic::rendering(std::map<int, std::vector<Vertex>>& listAdjacency, std::
     XClearWindow(_display, _window);
     std::set<int> renderedVertex;
     
-    for(auto& vertex : listAdjacency) {
+    for (auto& vertex : listAdjacency) {
         Vertex currentVertex = numberVertex[vertex.first - 1];
         drawVertex(currentVertex);
         renderedVertex.insert(currentVertex.getNumber());
         
-        for(auto& adjacencyVertex : vertex.second) {
-            if(renderedVertex.find(adjacencyVertex.getNumber()) == renderedVertex.end()) {
+        for (auto& adjacencyVertex : vertex.second) {
+            if (renderedVertex.find(adjacencyVertex.getNumber()) == renderedVertex.end()) {
                 drawVertex(adjacencyVertex);
                 renderedVertex.insert(adjacencyVertex.getNumber());
 
@@ -207,13 +244,59 @@ void Graphic::rendering(std::map<int, std::vector<Vertex>>& listAdjacency, std::
             
             drawEdge(currentVertex, adjacencyVertex);
 
-            if(adjacencyVertex.getWeight() != std::numeric_limits<int>::max()) 
+            // if (adjacencyVertex.getWeight() != std::numeric_limits<int>::max()) {
+            //     if (_checkDrawArrow(listAdjacency, adjacencyVertex.getNumber(), 
+            //         currentVertex.getNumber()) == false) 
+            //     {
+            //         drawArrow(currentVertex, adjacencyVertex);
+            //     }
+
+            //     if (_checkWeight(listAdjacency, adjacencyVertex.getNumber(), 
+            //                      currentVertex.getNumber()))
+            //     drawWeightForOriented(currentVertex, adjacencyVertex, adjacencyVertex.getWeight());
+            //     else {
+            //         drawWeight(currentVertex, adjacencyVertex, adjacencyVertex.getWeight());
+            //     }
+            // }
+
+            if (_checkDrawArrow(listAdjacency, adjacencyVertex.getNumber(), 
+                                currentVertex) == false) 
+            {
+                drawArrow(currentVertex, adjacencyVertex);
+            }
+                
+            if (adjacencyVertex.getWeight() != std::numeric_limits<int>::max()) {
                 drawWeight(currentVertex, adjacencyVertex, adjacencyVertex.getWeight());
+            }
+
         }
     }
+
+    outputLegend();
+}
+
+bool Graphic::_checkDrawArrow(std::map<int, std::vector<Vertex>>& listAdjacency, int vertexForCheck, Vertex vertexAdjacency) {
+    for (auto& adjacencyVertex : listAdjacency[vertexForCheck]) {
+        if (adjacencyVertex.getNumber() == vertexAdjacency.getNumber() &&
+            adjacencyVertex.getWeight() == vertexAdjacency.getWeight()) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Graphic::outputLegend() {
+    std::string instructions = {"Press \"i\" for show instruction and \"o\" for hide"};
+
+    int x = 10;
+    int y = 20;
+
+    XDrawString(_display, _window, _gc[0], x, y, instructions.c_str(), instructions.size());
 }
 
 void Graphic::_destroyGraphic() {
     XDestroyWindow(_display, _window);
 	XCloseDisplay(_display);
 }
+

@@ -25,6 +25,7 @@ class Graphic {
         void drawArrow(Vertex initialVertex, Vertex finalVertex);
         void drawVertex(Vertex currentVertex);
         void drawEdge(Vertex vertex1, Vertex vertex2);
+        // void drawWeightForOriented(Vertex vertex1, Vertex vertex2, int weight);
         void drawWeight(Vertex vertex1, Vertex vertex2, int weight);
         void rendering(std::map<int, std::vector<Vertex>>& listAdjacency, 
                        std::vector<Vertex>& numberVertex);
@@ -32,8 +33,10 @@ class Graphic {
         bool checkCollisionVertex(Vertex& currentVertex, std::vector<Vertex>& numberVertex);
         void showInstruction();
         void hideInstruction();
+        void outputLegend();
         Display* getDisplay() { return _display; }
         private:
+        bool _checkDrawArrow(std::map<int, std::vector<Vertex>>& listAdjacency, int vertex, Vertex vertexAdjacency);
         void _outputInstruction();
         void _createWindow();
         void _createWindowInstruction();

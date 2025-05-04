@@ -21,6 +21,8 @@ class OrientedGraph {
         int getNumberVertex() { return _numberVertex.size(); }
         void outputMatrixAdjacency();
         void outputListAdjacency();
+        int checkEdge(int numberVertex1, int numberVertex2);
+        bool isStronglyConnected();
         void testGraph();
         void reset();
     private:
