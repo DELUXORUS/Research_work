@@ -4,23 +4,26 @@
 void OrientedGraph::testGraph() {
     if(_matrixAdjacency.size() == 0) {
         int inf = std::numeric_limits<int>::max();
-        _matrixAdjacency = {{inf, 5, 3, 2, 4},
-                            {4, inf, 2, 7, 3},
-                            {1, 3, inf, 2, 2},
-                            {4, 1, 5, inf, 3},
-                            {5, 1, 1, 1, inf}};
+        _matrixAdjacency = {{inf, 1, 6, 2, 3, 1},
+                            {4, inf, 1, 6, 5, 5},
+                            {5, 1, inf, 3, 2, 5},
+                            {4, 1, 2, inf, 1, 4},
+                            {2, 4, 2, 7, inf, 3},
+                            {4, 5, 2, 3, 5, inf}};
 
-        Vertex vertex1 = {1, 0, 100, 300};
-        Vertex vertex2 = {2, 0, 300, 200};
-        Vertex vertex3 = {3, 0, 300, 400};
-        Vertex vertex4 = {4, 0, 500, 200};
-        Vertex vertex5 = {5, 0, 500, 300};
+        Vertex vertex1 = {1, 0, 100, 200};
+        Vertex vertex2 = {2, 0, 250, 350};
+        Vertex vertex3 = {3, 0, 250, 50};
+        Vertex vertex4 = {4, 0, 400, 350};
+        Vertex vertex5 = {5, 0, 400, 50};
+        Vertex vertex6 = {5, 0, 550, 200};
 
         _numberVertex.push_back(vertex1);
         _numberVertex.push_back(vertex2);
         _numberVertex.push_back(vertex3);
         _numberVertex.push_back(vertex4);
         _numberVertex.push_back(vertex5);
+        _numberVertex.push_back(vertex6);
 
         fillListAdjacency();
     }

@@ -48,6 +48,7 @@ class BranchAndBound : public WeightAlgorithm {
         ZeroValuation _searchMaxGradeZero(std::vector<std::vector<int>>& weightMatrixAdjacency,
                                           std::vector<int>& rowIndexDecreasingMatrix, 
                                           std::vector<int>& colIndexDecreasingMatrix);
+        bool _isOriented();
         unsigned _lowerBound;
         std::map<int, std::vector<Vertex>> _weightListAdjacency;
         

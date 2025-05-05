@@ -72,8 +72,8 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
     if (weightMatrixAdjacency.size() == 1) {
         _lowerBound = currentLowBound;
         _addInListAdjacency(weightListAdjacency, 
-            rowIndexDecreasingMatrix[0] + 1, 
-            colIndexDecreasingMatrix[0] + 1);
+                            rowIndexDecreasingMatrix[0] + 1, 
+                            colIndexDecreasingMatrix[0] + 1);
             return;
     }
 
@@ -223,12 +223,19 @@ int BranchAndBound::_accumulateGrades(std::vector<int>& minElements) {
 }
 
 void BranchAndBound::_addInListAdjacency(std::map<int, std::vector<Vertex>>& weightListAdjacency, int numberVertex1, int numberVertex2){
+    bool checked = 0;
+    static bool isOriented = 0;
     Vertex vertex1 = _numberVertexForCurrentGraph[numberVertex1 - 1];
     Vertex vertex2 = _numberVertexForCurrentGraph[numberVertex2 - 1];
     int weightForward = _matrixAdjacencyForCurrentGraph[numberVertex1 - 1][numberVertex2 - 1];
     int weightBackward = _matrixAdjacencyForCurrentGraph[numberVertex2 - 1][numberVertex1 - 1];
 
-    if (weightForward == weightBackward) {
+    if (checked == 0) {
+        isOriented = _isOriented();
+        checked = 1;
+    }
+
+    if (isOriented != 1) {
         vertex2.setWeight(weightForward);
         weightListAdjacency[numberVertex1].push_back(vertex2);
         vertex1.setWeight(weightBackward);
@@ -244,6 +251,23 @@ void BranchAndBound::_addInListAdjacency(std::map<int, std::vector<Vertex>>& wei
             weightListAdjacency[numberVertex2].push_back(vertex1);
         }
     }
+}
+
+bool BranchAndBound::_isOriented() {
+    for (size_t i = 0; i < _matrixAdjacencyForCurrentGraph.size(); ++i) {
+        for (size_t j = i + 1; j < _matrixAdjacencyForCurrentGraph.size(); ++j) {
+            if (_matrixAdjacencyForCurrentGraph[i][j] !=
+                _matrixAdjacencyForCurrentGraph[j][i]) 
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+    
 
     // Vertex vertex1 = _weightGraph.getVectorVertex()[numberVertex1 - 1];
     // Vertex vertex2 = _weightGraph.getVectorVertex()[numberVertex2 - 1];
@@ -257,7 +281,6 @@ void BranchAndBound::_addInListAdjacency(std::map<int, std::vector<Vertex>>& wei
 
     // weightListAdjacency[numberVertex1].push_back(vertex2);
     // weightListAdjacency[numberVertex2].push_back(vertex1);
-}
 
 // void BranchAndBound::_sortEdges() {
 //     std::vector<std::pair<int, int>> sortedHamiltonianCycle;

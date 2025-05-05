@@ -162,32 +162,25 @@ void Graphic::drawWeightForOriented(Vertex vertex1, Vertex vertex2, int weight) 
     int x2 = vertex2.getX();
     int y2 = vertex2.getY();
 
-    // Вычисляем среднюю точку между вершинами
     int midX = (x1 + x2) / 2;
     int midY = (y1 + y2) / 2;
 
-    // Направление от точки 1 к точке 2
     int dx = x2 - x1;
     int dy = y2 - y1;
 
-    // Смещение на 1/4 длины вектора
     int displacementX = dx / 4;
     int displacementY = dy / 4;
 
-    // Итоговые координаты: немного ближе к vertex1
     int distX = x1 + displacementX;
     int distY = y1 + displacementY;
 
-    // Если линия горизонтальна — поднимаем текст чуть выше/ниже, чтобы не сливался
     if (dy == 0) {
-        distY -= 10; // чуть выше
+        distY -= 10; 
     }
-    // Если линия вертикальна — сдвигаем текст немного вправо/влево
     else if (dx == 0) {
-        distX += 10; // чуть правее
+        distX += 10; 
     }
 
-    // Рисуем текст
     XDrawString(_display, _window, _gc[0], distX, distY, weightStr.c_str(), weightStr.size());
 }
 
