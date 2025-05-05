@@ -16,7 +16,7 @@ void OrientedGraph::testGraph() {
         Vertex vertex3 = {3, 0, 250, 50};
         Vertex vertex4 = {4, 0, 400, 350};
         Vertex vertex5 = {5, 0, 400, 50};
-        Vertex vertex6 = {5, 0, 550, 200};
+        Vertex vertex6 = {6, 0, 550, 200};
 
         _numberVertex.push_back(vertex1);
         _numberVertex.push_back(vertex2);

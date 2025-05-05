@@ -4,22 +4,26 @@
 void WeightGraph::testGraph() {
     if(_weightMatrixAdjacency.size() == 0) {
         int inf = std::numeric_limits<int>::max();
-        _weightMatrixAdjacency = {{inf, 1, 2, inf, 5},
-                                  {1, inf, inf, 8, 2},
-                                  {2, inf, inf, 4, 3},
-                                  {inf, 8, 4, inf, 5},
-                                  {5, 2, 3, 5, inf}};
+        _weightMatrixAdjacency = {{inf, 1, 6, 2, 3, 1},
+                                  {1, inf, 1, 6, 5, 5},
+                                  {6, 1, inf, 3, 2, 5},
+                                  {2, 6, 3, inf, 1, 4},
+                                  {3, 5, 2, 1, inf, 3},
+                                  {1, 5, 5, 4, 3, inf}};
         
-            Vertex vertex1 = { 1, 0, 200, 200};
-            Vertex vertex2 = { 2, 0, 200, 400};
-            Vertex vertex3 = { 3, 0, 400, 200};
-            Vertex vertex4 = { 4, 0, 400, 400};
-            Vertex vertex5 = { 5, 0, 300, 300};
-            _numberVertex.push_back(vertex1);
-            _numberVertex.push_back(vertex2);
-            _numberVertex.push_back(vertex3);
-            _numberVertex.push_back(vertex4);
-            _numberVertex.push_back(vertex5);
+        Vertex vertex1 = {1, 0, 100, 200};
+        Vertex vertex2 = {2, 0, 250, 350};
+        Vertex vertex3 = {3, 0, 250, 50};
+        Vertex vertex4 = {4, 0, 400, 350};
+        Vertex vertex5 = {5, 0, 400, 50};
+        Vertex vertex6 = {6, 0, 550, 200};
+
+        _numberVertex.push_back(vertex1);
+        _numberVertex.push_back(vertex2);
+        _numberVertex.push_back(vertex3);
+        _numberVertex.push_back(vertex4);
+        _numberVertex.push_back(vertex5);
+        _numberVertex.push_back(vertex6);
 
         fillListWeight();
     }

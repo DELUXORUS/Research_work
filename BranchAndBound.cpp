@@ -230,26 +230,20 @@ void BranchAndBound::_addInListAdjacency(std::map<int, std::vector<Vertex>>& wei
     int weightForward = _matrixAdjacencyForCurrentGraph[numberVertex1 - 1][numberVertex2 - 1];
     int weightBackward = _matrixAdjacencyForCurrentGraph[numberVertex2 - 1][numberVertex1 - 1];
 
-    if (checked == 0) {
+    if (checked == false) {
         isOriented = _isOriented();
         checked = 1;
     }
 
-    if (isOriented != 1) {
+    if (isOriented != true) {
         vertex2.setWeight(weightForward);
         weightListAdjacency[numberVertex1].push_back(vertex2);
         vertex1.setWeight(weightBackward);
         weightListAdjacency[numberVertex2].push_back(vertex1);
     }
     else {
-        if (weightForward != std::numeric_limits<int>::max()) {
-            vertex2.setWeight(weightForward);
-            weightListAdjacency[numberVertex1].push_back(vertex2);
-        }
-        else {
-            vertex1.setWeight(weightBackward);
-            weightListAdjacency[numberVertex2].push_back(vertex1);
-        }
+        vertex2.setWeight(weightForward);
+        weightListAdjacency[numberVertex1].push_back(vertex2);
     }
 }
 

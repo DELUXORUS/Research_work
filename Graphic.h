@@ -36,7 +36,8 @@ class Graphic {
         void outputLegend();
         Display* getDisplay() { return _display; }
         private:
-        bool _checkDrawArrow(std::map<int, std::vector<Vertex>>& listAdjacency, int vertex, Vertex vertexAdjacency);
+        bool _checkDrawArrow(std::map<int, std::vector<Vertex>>& listAdjacency, 
+                             Vertex vertexForCheck, int vertexAdjacency);
         void _outputInstruction();
         void _createWindow();
         void _createWindowInstruction();

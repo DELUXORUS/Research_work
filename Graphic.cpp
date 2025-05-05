@@ -231,36 +231,37 @@ void Graphic::rendering(std::map<int, std::vector<Vertex>>& listAdjacency, std::
             if (renderedVertex.find(adjacencyVertex.getNumber()) == renderedVertex.end()) {
                 drawVertex(adjacencyVertex);
                 renderedVertex.insert(adjacencyVertex.getNumber());
-
             }
             
             drawEdge(currentVertex, adjacencyVertex);
 
-            if (_checkDrawArrow(listAdjacency, adjacencyVertex.getNumber(), 
-                                currentVertex) == false) 
+            if (_checkDrawArrow(listAdjacency, adjacencyVertex, 
+                                currentVertex.getNumber()) == true) 
             {
                 drawArrow(currentVertex, adjacencyVertex);
+                drawWeightForOriented(currentVertex, adjacencyVertex, adjacencyVertex.getWeight());
             }
-                
-            if (adjacencyVertex.getWeight() != std::numeric_limits<int>::max()) {
+            else {
                 drawWeight(currentVertex, adjacencyVertex, adjacencyVertex.getWeight());
             }
-
         }
     }
 
     outputLegend();
 }
 
-bool Graphic::_checkDrawArrow(std::map<int, std::vector<Vertex>>& listAdjacency, int vertexForCheck, Vertex vertexAdjacency) {
-    for (auto& adjacencyVertex : listAdjacency[vertexForCheck]) {
-        if (adjacencyVertex.getNumber() == vertexAdjacency.getNumber() &&
-            adjacencyVertex.getWeight() == vertexAdjacency.getWeight()) {
-            return true;
+bool Graphic::_checkDrawArrow(std::map<int, std::vector<Vertex>>& listAdjacency, 
+                              Vertex vertexForCheck, int vertexAdjacency) 
+{
+    for (auto& adjacencyVertex : listAdjacency[vertexForCheck.getNumber()]) {
+        if (adjacencyVertex.getNumber() == vertexAdjacency &&
+            adjacencyVertex.getWeight() == vertexForCheck.getWeight()) 
+        {
+            return false;
         }
     }
 
-    return false;
+    return true;
 }
 
 void Graphic::outputLegend() {
