@@ -6,16 +6,13 @@ void BranchAndBound::initialize(std::map<int, std::vector<Vertex>> listAdjacency
     std::vector<Vertex> numberVertex)
 {
     copy(listAdjacency.begin(), listAdjacency.end(), inserter(_listAdjacencyForCurrentGraph, _listAdjacencyForCurrentGraph.end()));
-    // copy(matrixAdjacency.begin(), matrixAdjacency.end(), inserter(_matrixAdjacencyForCurrentGraph, matrixAdjacency.end()));
-    // copy(numberVertex.begin(), numberVertex.end(), inserter(_numberVertexForCurrentGraph, _numberVertexForCurrentGraph.end()));
-    // _listAdjacencyForCurrentGraph = listAdjacency;
     _matrixAdjacencyForCurrentGraph = matrixAdjacency;
     _numberVertexForCurrentGraph = numberVertex;
+    _oriented = _isOriented();
 }
 
 void BranchAndBound::search() {
     _lowerBound = std::numeric_limits<unsigned>::max();
-    // std::vector<std::vector<int>> weightMatrixAdjacency = _weightGraph.getWeightMatrixAdjacency();
     std::vector<std::vector<int>> weightMatrixAdjacency = _matrixAdjacencyForCurrentGraph;
 
 
@@ -41,16 +38,8 @@ void BranchAndBound::search() {
     cout << endl << "Matrix after reduction col" << endl;
     _outputMatrix(weightMatrixAdjacency);
 
-    // ZeroValuation zeroOnDelete;
-    // zeroOnDelete = _searchMaxGradeZero(weightMatrixAdjacency, rowIndexDecreasingMatrix, colIndexDecreasingMatrix);
-    // cout << endl << "Row: " << zeroOnDelete.row << ", Col: " << zeroOnDelete.col << endl;
-    // _reductionMatrix(weightMatrixAdjacency, zeroOnDelete.row, zeroOnDelete.col);
-    // _outputMatrix(weightMatrixAdjacency);
-
     std::map<int, std::vector<Vertex>> weightListAdjacency;
     _recursivelyBrandAndBound(weightMatrixAdjacency, currentLowBound, weightListAdjacency, rowIndexDecreasingMatrix, colIndexDecreasingMatrix);
-    copy(weightListAdjacency.begin(), weightListAdjacency.end(), 
-         inserter(_weightListAdjacency, _weightListAdjacency.end()));
 
     if (_lowerBound != std::numeric_limits<unsigned>::max()) {
         cout << endl << endl << "Hamiltonian cycle of smallest length is found!" << endl;
@@ -61,7 +50,7 @@ void BranchAndBound::search() {
 
 void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& weightMatrixAdjacency, 
                                                int currentLowBound, 
-                                               std::map<int, std::vector<Vertex>>& weightListAdjacency,
+                                               std::map<int, std::vector<Vertex>> weightListAdjacency,
                                                std::vector<int>& rowIndexDecreasingMatrix, 
                                                std::vector<int>& colIndexDecreasingMatrix) 
 {
@@ -74,26 +63,29 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
         _addInListAdjacency(weightListAdjacency, 
                             rowIndexDecreasingMatrix[0] + 1, 
                             colIndexDecreasingMatrix[0] + 1);
-            return;
+        _weightListAdjacency.clear();
+        copy(weightListAdjacency.begin(), weightListAdjacency.end(), 
+             inserter(_weightListAdjacency, _weightListAdjacency.end()));
+        return;
     }
 
     cout << endl << "-----------------------------------------------------------------------------------" << endl;
-    static int step = 1;
-    cout << endl << "Step " << step << endl;
-    ++step;
 
     ZeroValuation zeroOnDelete;
-    int conversionConst, negativeNode, positiveNode;
-    int numberVertex1, numberVertex2;
+    int negativeNode, positiveNode;
     std::vector<int> minElements;
     std::vector<std::vector<int>> matrixWithoutDelete = weightMatrixAdjacency;
     std::vector<int> rowIndexWithoutDeleteMatrix = rowIndexDecreasingMatrix;
     std::vector<int> colIndexWithoutDeleteMatrix = colIndexDecreasingMatrix;
+
+    cout << endl << "Matrix initial";
+    _outputMatrix(weightMatrixAdjacency);
     
     zeroOnDelete = _searchMaxGradeZero(weightMatrixAdjacency, rowIndexDecreasingMatrix, colIndexDecreasingMatrix);
 
-    // cout << endl << "Max grade zero: " << endl;
-    // cout << "Row: " << zeroOnDelete.row << endl << "Col: " << zeroOnDelete.col << endl;
+    cout << endl << "Max grade zero: " << endl;
+    cout << zeroOnDelete.grade << endl;
+    cout << "Row: " << zeroOnDelete.row << endl << "Col: " << zeroOnDelete.col << endl;
 
     if (zeroOnDelete.grade == std::numeric_limits<int>::max()) {
         negativeNode = std::numeric_limits<int>::max();
@@ -105,8 +97,8 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
 
     int trueRowIndex = rowIndexDecreasingMatrix[zeroOnDelete.row];
     int trueColIndex = colIndexDecreasingMatrix[zeroOnDelete.col];
-    numberVertex1 = trueRowIndex + 1;
-    numberVertex2 = trueColIndex + 1;
+    int numberVertex1 = trueRowIndex + 1;
+    int numberVertex2 = trueColIndex + 1;
     _reductionMatrix(weightMatrixAdjacency, zeroOnDelete.row, zeroOnDelete.col);
 
     cout << endl << "Indexes before delete" << endl;
@@ -137,9 +129,6 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
     {
         int indexRowForInfinity = std::distance(rowIndexDecreasingMatrix.begin(), pos1);
         int indexColForInfinity = std::distance(colIndexDecreasingMatrix.begin(), pos2);
-
-        // cout << endl << "Row for infinity: " << indexRowForInfinity << endl;
-        // cout << "Col for infinity: " << indexColForInfinity << endl;
         weightMatrixAdjacency[indexRowForInfinity][indexColForInfinity] = std::numeric_limits<int>::max();
     }
     
@@ -147,26 +136,20 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
 
     cout << endl << "Matrix without adding an edge to the path";
     _outputMatrix(matrixWithoutDelete);
-
     cout << endl << "Matrix after remove row and col";
     _outputMatrix(weightMatrixAdjacency);
 
     cout << endl << "Matrix row reduction" << endl;
     minElements = _searchMinInRowOrCol(ROW, weightMatrixAdjacency);
     _outputVector(minElements);
-    cout << endl;
     int conversionConst1 = _accumulateGrades(minElements);
     _matrixReductionRowOrCol(ROW, minElements, weightMatrixAdjacency);
 
-    
     cout << endl << "Matrix col reduction" << endl;
     minElements = _searchMinInRowOrCol(COL, weightMatrixAdjacency);
     _outputVector(minElements);
-    cout << endl;
     int conversionConst2 = _accumulateGrades(minElements);
     _matrixReductionRowOrCol(COL, minElements, weightMatrixAdjacency);
-    // cout << endl << "Matrix after reduction at row and col";
-    // _outputMatrix(weightMatrixAdjacency);
 
     if (conversionConst1 == std::numeric_limits<int>::max() ||
         conversionConst2 == std::numeric_limits<int>::max()) 
@@ -180,14 +163,22 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
     cout << endl << "Low bound with add edge: " << positiveNode;
     cout << endl << "Low bound without add edge: " << negativeNode << endl; 
 
-
     if (positiveNode <= negativeNode) {
         currentLowBound = positiveNode;
         _addInListAdjacency(weightListAdjacency, numberVertex1, numberVertex2);
         _recursivelyBrandAndBound(weightMatrixAdjacency, currentLowBound, 
                                   weightListAdjacency, rowIndexDecreasingMatrix, colIndexDecreasingMatrix);
-
+        
         if (negativeNode < _lowerBound) {
+            _popBackFromList(weightListAdjacency, 
+                            rowIndexWithoutDeleteMatrix[zeroOnDelete.row] + 1, 
+                            rowIndexWithoutDeleteMatrix[zeroOnDelete.col] + 1);
+
+            minElements = _searchMinInRowOrCol(ROW, matrixWithoutDelete);
+            _matrixReductionRowOrCol(ROW, minElements, matrixWithoutDelete);
+            minElements = _searchMinInRowOrCol(COL, matrixWithoutDelete);
+            _matrixReductionRowOrCol(COL, minElements, matrixWithoutDelete);
+
             currentLowBound = negativeNode;
             _recursivelyBrandAndBound(matrixWithoutDelete, currentLowBound, 
                                       weightListAdjacency, rowIndexWithoutDeleteMatrix, colIndexWithoutDeleteMatrix);
@@ -199,6 +190,12 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
                                   weightListAdjacency, rowIndexWithoutDeleteMatrix, colIndexWithoutDeleteMatrix);
 
         if (positiveNode < _lowerBound) {
+
+            minElements = _searchMinInRowOrCol(ROW, weightMatrixAdjacency);
+            _matrixReductionRowOrCol(ROW, minElements, weightMatrixAdjacency);
+            minElements = _searchMinInRowOrCol(COL, weightMatrixAdjacency);
+            _matrixReductionRowOrCol(COL, minElements, weightMatrixAdjacency);
+
             currentLowBound = positiveNode;
             _addInListAdjacency(weightListAdjacency, numberVertex1, numberVertex2);
             _recursivelyBrandAndBound(weightMatrixAdjacency, currentLowBound, 
@@ -206,6 +203,16 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
         }
     }
 }
+
+void BranchAndBound::_popBackFromList(std::map<int, std::vector<Vertex>>& weightListAdjacency, int vertex1, int vertex2) {
+    if (_oriented != true) {
+        weightListAdjacency[vertex1].pop_back();
+        weightListAdjacency[vertex2].pop_back();
+    }
+    else {
+        weightListAdjacency[vertex1].pop_back();
+    }
+}   
 
 int BranchAndBound::_accumulateGrades(std::vector<int>& minElements) {
     int amount = 0;
@@ -223,19 +230,12 @@ int BranchAndBound::_accumulateGrades(std::vector<int>& minElements) {
 }
 
 void BranchAndBound::_addInListAdjacency(std::map<int, std::vector<Vertex>>& weightListAdjacency, int numberVertex1, int numberVertex2){
-    bool checked = 0;
-    static bool isOriented = 0;
     Vertex vertex1 = _numberVertexForCurrentGraph[numberVertex1 - 1];
     Vertex vertex2 = _numberVertexForCurrentGraph[numberVertex2 - 1];
     int weightForward = _matrixAdjacencyForCurrentGraph[numberVertex1 - 1][numberVertex2 - 1];
     int weightBackward = _matrixAdjacencyForCurrentGraph[numberVertex2 - 1][numberVertex1 - 1];
 
-    if (checked == false) {
-        isOriented = _isOriented();
-        checked = 1;
-    }
-
-    if (isOriented != true) {
+    if (_oriented != true) {
         vertex2.setWeight(weightForward);
         weightListAdjacency[numberVertex1].push_back(vertex2);
         vertex1.setWeight(weightBackward);
@@ -260,45 +260,6 @@ bool BranchAndBound::_isOriented() {
 
     return false;
 }
-
-    
-
-    // Vertex vertex1 = _weightGraph.getVectorVertex()[numberVertex1 - 1];
-    // Vertex vertex2 = _weightGraph.getVectorVertex()[numberVertex2 - 1];
-    // Vertex vertex1 = _numberVertexForCurrentGraph[numberVertex1 - 1];
-    // Vertex vertex2 = _numberVertexForCurrentGraph[numberVertex2 - 1];
-
-    // vertex1.setWeight(_weightGraph.getWeightMatrixAdjacency()[numberVertex1 - 1][numberVertex2 - 1]);
-    // vertex1.setWeight(_matrixAdjacencyForCurrentGraph[numberVertex1 - 1][numberVertex2 - 1]);
-
-    // vertex2.setWeight(vertex1.getWeight());
-
-    // weightListAdjacency[numberVertex1].push_back(vertex2);
-    // weightListAdjacency[numberVertex2].push_back(vertex1);
-
-// void BranchAndBound::_sortEdges() {
-//     std::vector<std::pair<int, int>> sortedHamiltonianCycle;
-//     std::pair<int, int> firstEdge = _hamiltonianCycle[0];
-//     int currentEndPath = firstEdge.second;
-//     sortedHamiltonianCycle.push_back(firstEdge);
-
-//     int i = 1;
-
-//     while(i < _hamiltonianCycle.size()) {
-//         std::pair<int, int> currentEdge = _hamiltonianCycle[i];
-
-//         if (currentEdge.first == currentEndPath) {
-//             sortedHamiltonianCycle.push_back(currentEdge);
-//             currentEndPath = currentEdge.second;
-//             i = 1;
-//             continue;
-//         }
-
-//         ++i;
-//     }
-
-//     _hamiltonianCycle = sortedHamiltonianCycle;
-// }
 
 void BranchAndBound::_reductionMatrix(std::vector<std::vector<int>>& weightMatrixAdjacency,
                                       int row, int col)
@@ -427,12 +388,6 @@ void BranchAndBound::_output() {
 
         cout << endl;
     }
-    // cout << endl << "Method Branch And Bound for Salesmans task" << endl;
-    // cout << "Total weight: " << _lowerBound << endl;
-    
-    // for (auto edge : _hamiltonianCycle) {
-    //     cout << edge.first << " - " << edge.second << endl;
-    // }
 }
 
 void BranchAndBound::_outputMatrix(std::vector<std::vector<int>>& weightMatrixAdjacency) {
@@ -454,6 +409,8 @@ void BranchAndBound::_outputMatrix(std::vector<std::vector<int>>& weightMatrixAd
 
         cout << endl;
     }
+
+    cout << endl;
 }
 
 void BranchAndBound::_outputVector(std::vector<int>& vector) {
@@ -469,4 +426,6 @@ void BranchAndBound::_outputVector(std::vector<int>& vector) {
 
         cout << "     ";
     }
+
+    cout << endl;
 }

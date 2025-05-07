@@ -36,7 +36,7 @@ class BranchAndBound : public WeightAlgorithm {
         // void _sortEdges();
         void _recursivelyBrandAndBound(std::vector<std::vector<int>>& weightMatrixAdjacency, 
                                        int currentLowBound,
-                                       std::map<int, std::vector<Vertex>>& weightListAdjacency,
+                                       std::map<int, std::vector<Vertex>> weightListAdjacency,
                                        std::vector<int>& rowIndexDecreasingMatrix, 
                                        std::vector<int>& colIndexDecreasingMatrix);
         void _reductionMatrix(std::vector<std::vector<int>>& weightMatrixAdjacency, 
@@ -48,9 +48,11 @@ class BranchAndBound : public WeightAlgorithm {
         ZeroValuation _searchMaxGradeZero(std::vector<std::vector<int>>& weightMatrixAdjacency,
                                           std::vector<int>& rowIndexDecreasingMatrix, 
                                           std::vector<int>& colIndexDecreasingMatrix);
+        void _popBackFromList(std::map<int, std::vector<Vertex>>& weightListAdjacency, int vertex1, int vertex2);
         bool _isOriented();
         unsigned _lowerBound;
         std::map<int, std::vector<Vertex>> _weightListAdjacency;
+        bool _oriented;
         
 };
 

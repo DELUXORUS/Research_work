@@ -28,6 +28,3 @@ int main(int argc, char **argv) {
     Control control;
     control.dispatch(graphic, weightGraph, orientedGraph);
 }
-
-
-// ребра орграфа между двумя вершинами с одинаковым весом добавляются в списко смежности дважды
