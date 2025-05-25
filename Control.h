@@ -22,8 +22,10 @@ class Control {
     private:
         int _keyAction(XEvent* event, Graphic& graphic, 
                     WeightGraph& weightGraph, OrientedGraph& orientedGraph);
-        void _constructionWeightGraph(Graphic& graphic, WeightGraph& weightGraph, Vertex currentVertex);
-        void _constructionOrientedGraph(Graphic& graphic, OrientedGraph& orientedGraph, Vertex currentVertex);
+        void _constructionWeightGraph(Graphic& graphic, WeightGraph& weightGraph, 
+                                      Vertex currentVertex);
+        void _constructionOrientedGraph(Graphic& graphic, OrientedGraph& orientedGraph, 
+                                        Vertex currentVertex);
         void _addVertex(Graphic& graphic, Vertex currentVertex);
         std::vector<Vertex> _selectVertexForWeight;
         std::vector<Vertex> _selectVertexForOriented;

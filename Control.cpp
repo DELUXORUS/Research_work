@@ -3,6 +3,7 @@
 void Control::dispatch(Graphic& graphic, WeightGraph& weightGraph, 
                        OrientedGraph& orientedGraph) 
 {
+    cout << "Define a complete weighted undirected graph or a strongly connected oriented graph." << endl;
     cout << "Press \"i\" for show instruction and \"o\" for hide" << endl;
     XEvent event;
     int flagDone = 0;
@@ -60,7 +61,8 @@ void Control::_addVertex(Graphic& graphic, Vertex currentVertex) {
     }
 }
 
-void Control::_constructionWeightGraph(Graphic& graphic, WeightGraph& weightGraph, Vertex currentVertex) {
+void Control::_constructionWeightGraph(Graphic& graphic, WeightGraph& weightGraph, 
+                                       Vertex currentVertex) {
     if (_lockButton1 == 0) {
         _lockButton3 = 1;
 
@@ -89,7 +91,8 @@ void Control::_constructionWeightGraph(Graphic& graphic, WeightGraph& weightGrap
     }
 }
 
-void Control::_constructionOrientedGraph(Graphic& graphic, OrientedGraph& orientedGraph, Vertex currentVertex) {
+void Control::_constructionOrientedGraph(Graphic& graphic, OrientedGraph& orientedGraph, 
+                                         Vertex currentVertex) {
     if (_lockButton3 == 0) {
         _lockButton1 = 1;
 
@@ -108,9 +111,14 @@ void Control::_constructionOrientedGraph(Graphic& graphic, OrientedGraph& orient
                 int numberVertex2 = finalVertex.getNumber();
                 int weight;
 
-                cout << endl << "Enter weight for edge " << _selectVertexForWeight[0].getNumber() << " - " << currentVertex.getNumber() << ":" << endl;
+                cout << endl << "Enter weight for edge " << _selectVertexForWeight[0].getNumber(); 
+                cout << " - " << currentVertex.getNumber() << ":" << endl;
                 cin >> weight;
-                graphic.drawEdge(_selectVertexForWeight[0], _selectVertexForWeight[1]);
+
+                if (orientedGraph.checkEdge(finalVertex.getNumber(), initialVertex.getNumber()) == 0) {
+                    graphic.drawEdge(_selectVertexForWeight[0], _selectVertexForWeight[1]);
+                }
+
                 graphic.drawWeightForOriented(initialVertex, finalVertex, weight);
                 graphic.drawArrow(initialVertex, finalVertex);
                 
@@ -126,7 +134,7 @@ void Control::_constructionOrientedGraph(Graphic& graphic, OrientedGraph& orient
 }
 
 int Control::_keyAction(XEvent* event, Graphic& graphic, 
-                     WeightGraph& weightGraph, OrientedGraph& orientedGraph)
+                        WeightGraph& weightGraph, OrientedGraph& orientedGraph)
 {
 	KeySym symbol;
     WeightAlgorithm *branchAndBound;

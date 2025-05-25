@@ -46,7 +46,8 @@ int WeightGraph::checkEdge(int numberVertex1, int numberVertex2) {
     if(numberVertex1 == numberVertex2)
         return 2;
     
-    if(numberVertex1 >= _weightMatrixAdjacency.size() || numberVertex2 >= _weightMatrixAdjacency.size())
+    if(numberVertex1 >= _weightMatrixAdjacency.size() || 
+       numberVertex2 >= _weightMatrixAdjacency.size())
         return 0;
     
     if(_weightMatrixAdjacency[numberVertex1][numberVertex2] != std::numeric_limits<int>::max())
@@ -104,8 +105,10 @@ void WeightGraph::fillListWeight() {
     for(int i = 0; i < _weightMatrixAdjacency.size() - 1; i++) {
         for(int j = i + 1; j < _weightMatrixAdjacency.size(); j++) {
             if(_weightMatrixAdjacency[i][j] != std::numeric_limits<int>::max()) {
-                _weightListAdjacency[i + 1].push_back({j + 1, _weightMatrixAdjacency[i][j], _numberVertex[j].getX(), _numberVertex[j].getY()});
-                _weightListAdjacency[j + 1].push_back({i + 1, _weightMatrixAdjacency[i][j], _numberVertex[i].getX(), _numberVertex[i].getY()});
+                _weightListAdjacency[i + 1].push_back({j + 1, _weightMatrixAdjacency[i][j], 
+                                                      _numberVertex[j].getX(), _numberVertex[j].getY()});
+                _weightListAdjacency[j + 1].push_back({i + 1, _weightMatrixAdjacency[i][j], 
+                                                       _numberVertex[i].getX(), _numberVertex[i].getY()});
             }
         }
     }

@@ -4,11 +4,11 @@
 void OrientedGraph::testGraph() {
     if(_matrixAdjacency.size() == 0) {
         int inf = std::numeric_limits<int>::max();
-        // _matrixAdjacency = {{inf, 1, 2, 3, 4},
-        //                     {14, inf, 15, 16, 5},
-        //                     {13, 20, inf, 17, 6},
-        //                     {12, 19, 18, inf, 7},
-        //                     {11, 10, 9, 8, inf}};
+        // _matrixAdjacency = {{inf, 20, 18, 12, 8},
+        //                     {5, inf, 14, 7, 11},
+        //                     {12, 18, inf, 6, 11},
+        //                     {11, 17, 11, inf, 12},
+        //                     {5, 5, 5, 5, inf}};
 
         // Vertex vertex1 = {1, 0, 100, 200};
         // Vertex vertex2 = {2, 0, 250, 350};
@@ -77,7 +77,8 @@ int OrientedGraph::checkEdge(int numberVertex1, int numberVertex2) {
     if(numberVertex1 == numberVertex2)
         return 2;
     
-    if(numberVertex1 >= _matrixAdjacency.size() || numberVertex2 >= _matrixAdjacency.size())
+    if(numberVertex1 >= _matrixAdjacency.size() || 
+       numberVertex2 >= _matrixAdjacency.size())
         return 0;
     
     if(_matrixAdjacency[numberVertex1][numberVertex2] != std::numeric_limits<int>::max())
@@ -104,7 +105,8 @@ void OrientedGraph::fillListAdjacency() {
     for(int i = 0; i < _matrixAdjacency.size(); i++) {
         for(int j = 0; j < _matrixAdjacency.size(); j++) {
             if(_matrixAdjacency[i][j] != std::numeric_limits<int>::max()) {
-                _listAdjacency[i + 1].push_back({j + 1, _matrixAdjacency[i][j], _numberVertex[j].getX(), _numberVertex[j].getY()});
+                _listAdjacency[i + 1].push_back({j + 1, _matrixAdjacency[i][j], 
+                                                 _numberVertex[j].getX(), _numberVertex[j].getY()});
             }
         }
     }

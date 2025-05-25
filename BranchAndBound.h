@@ -30,7 +30,8 @@ class BranchAndBound : public WeightAlgorithm {
 
         int _accumulateGrades(std::vector<int>& minElements);
         void _outputVector(std::vector<int>& vector);
-        void _addInListAdjacency(std::map<int, std::vector<Vertex>>& weightListAdjacency, int numberVertex1, int numberVertex2);
+        void _addInListAdjacency(std::map<int, std::vector<Vertex>>& weightListAdjacency, 
+                                 int numberVertex1, int numberVertex2);
         void _output();
         void _outputMatrix(std::vector<std::vector<int>>& weightMatrixAdjacency);
         // void _sortEdges();

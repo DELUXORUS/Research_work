@@ -5,7 +5,8 @@ void BranchAndBound::initialize(std::map<int, std::vector<Vertex>> listAdjacency
     std::vector<std::vector<int>> matrixAdjacency,
     std::vector<Vertex> numberVertex)
 {
-    copy(listAdjacency.begin(), listAdjacency.end(), inserter(_listAdjacencyForCurrentGraph, _listAdjacencyForCurrentGraph.end()));
+    copy(listAdjacency.begin(), listAdjacency.end(), 
+         inserter(_listAdjacencyForCurrentGraph, _listAdjacencyForCurrentGraph.end()));
     _matrixAdjacencyForCurrentGraph = matrixAdjacency;
     _numberVertexForCurrentGraph = numberVertex;
     _oriented = _isOriented();
@@ -204,7 +205,9 @@ void BranchAndBound::_recursivelyBrandAndBound(std::vector<std::vector<int>>& we
     }
 }
 
-void BranchAndBound::_popBackFromList(std::map<int, std::vector<Vertex>>& weightListAdjacency, int vertex1, int vertex2) {
+void BranchAndBound::_popBackFromList(std::map<int, std::vector<Vertex>>& weightListAdjacency, 
+                                      int vertex1, int vertex2) 
+{
     if (_oriented != true) {
         weightListAdjacency[vertex1].pop_back();
         weightListAdjacency[vertex2].pop_back();
@@ -229,7 +232,8 @@ int BranchAndBound::_accumulateGrades(std::vector<int>& minElements) {
     return amount;
 }
 
-void BranchAndBound::_addInListAdjacency(std::map<int, std::vector<Vertex>>& weightListAdjacency, int numberVertex1, int numberVertex2){
+void BranchAndBound::_addInListAdjacency(std::map<int, std::vector<Vertex>>& weightListAdjacency, 
+                                         int numberVertex1, int numberVertex2){
     Vertex vertex1 = _numberVertexForCurrentGraph[numberVertex1 - 1];
     Vertex vertex2 = _numberVertexForCurrentGraph[numberVertex2 - 1];
     int weightForward = _matrixAdjacencyForCurrentGraph[numberVertex1 - 1][numberVertex2 - 1];
@@ -358,7 +362,7 @@ BranchAndBound::ZeroValuation BranchAndBound::_searchMaxGradeZero(std::vector<st
                     maxGradeZero.grade = std::numeric_limits<int>::max();
                 }
                 else {
-                    if (maxGradeZero.grade <= minRow[i] + minCol[j]) {
+                    if (maxGradeZero.grade < minRow[i] + minCol[j]) {
                         maxGradeZero.row = i;
                         maxGradeZero.col = j;
                         maxGradeZero.grade = minRow[i] + minCol[j];
